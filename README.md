@@ -2,8 +2,11 @@
 
 専門用語（キーワード）自動抽出用Perlモジュール"TermExtract"を簡単に使うためのDockerイメージを作成するDockerfileです。 
 
+* 専門用語（キーワード）自動抽出用Perlモジュール"TermExtract"  
 http://gensen.dl.itc.u-tokyo.ac.jp/termextract.html
 
+* "TermExtract"のCOPYRIGHT  
+東京大学・中川裕志教授、横浜国立大学・森辰則助教授が 作成した「専門用語自動抽出システム」のExtract.pm を参考に、中川教授の 教示を受け、東京大学経済学部・前田朗が全面的に組みなおしたもの。  
 
 このDockerfileでは、以下の環境のコンテナが構築されます。
 
@@ -62,7 +65,7 @@ UTF8の文字コードのテキストのみ対応しています。
 | --no_stat |重要度計算で学習機能を使わない||
 | --no_storage |学習機能用DBにデータを蓄積しない||
 | --average_rate |重要度計算で、「ドキュメント中の用語の頻度」と「連接語の重要度」のどちらに比重をおくか。値が大きいほど「ドキュメント中の用語の頻度」の比重が高まる|1|
-| --no_total |重要度計算で連接語の延べ数をとる|ON|
+| --use_total |重要度計算で連接語の延べ数をとる|ON|
 | --use_uniq |重要度計算で連接語の異なり数をとる||
 | --use_Perplexity |重要度計算で連接語のパープレキシティをとる||
 | --no_LR |重要度計算で連接語の隣接情報を使わない||
@@ -73,7 +76,7 @@ UTF8の文字コードのテキストのみ対応しています。
 | --lock_dir |データベースの排他ロックのための一時ディレクトリを指定|ロックしない|
 
 * 出力結果  
-<code>--output</code>に指定したモードに沿った解析結果がUTF8の文字コードのテキストが標準出力に出力されます。  
+<code>--output</code>に指定したモードに沿った解析結果のテキストがUTF8の文字コードで標準出力に出力されます。  
 
 ```bash
 % echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 4

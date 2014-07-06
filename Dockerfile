@@ -10,7 +10,7 @@ RUN yum install -y wget tar vi nkf
 RUN yum install -y gcc make gcc-c++
 RUN yum install -y perl perl-devel
 
-# for devian
+# for debian
 #RUN apt-get update
 #RUN apt-get install -y wget tar vim nkf
 #RUN apt-get install -y gcc make g++

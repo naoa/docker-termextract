@@ -40,13 +40,12 @@ my %opts = ( input => "", output => 1,
              use_total => 0, use_uniq => 0,
              use_Perplexity => 0, no_LR => 0,
              use_TF => 0, use_frq => 0, no_frq => 0,
-             use_SDBM => 0,
-             lock_dir => "");
+             use_SDBM => 0);
 
 GetOptions(\%opts, qw( input=s output=i no_mecab no_dic_filter
                        stat_db=s comb_db=s average_rate=f
                        no_stat no_storage use_total use_uniq use_Perplexity
-                       no_LR use_TF use_frq no_frq use_SDBM lock_dir=s) ) or exit 1;
+                       no_LR use_TF use_frq no_frq use_SDBM) ) or exit 1;
 
 $opts{stat_db} = $db_dir . $opts{stat_db};
 $opts{comb_db} = $db_dir . $opts{comb_db};
@@ -178,7 +177,7 @@ $data->comb_db($opts{comb_db});
 # データベースの排他ロックのための一時ディレクトリを指定
 # ディレクトリ名が空文字列（デフォルト）の場合はロックしない
 #
-$data->lock_dir($opts{lock_dir});
+#$data->lock_dir("lock_dir");
 
 #
 # 「形態素解析」済みのテキストファイルから、データを読み込み

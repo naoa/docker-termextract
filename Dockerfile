@@ -43,6 +43,11 @@ RUN cd TermExtract-4_10 ;perl Makefile.PL; make ;make install;
 ADD termextract_mecab.pl /usr/local/bin/termextract_mecab.pl
 RUN chmod 755 /usr/local/bin/termextract_mecab.pl
 
+VOLUME ["/var/lib/termextract"]
+
+ADD pre_filter.txt /var/lib/termextract/pre_filter.txt
+ADD post_filter.txt /var/lib/termextract/post_filter.txt
+
 # Clean up
 RUN rm -rf mecab-0.996.tar.gz*
 RUN rm -rf mecab-perl-0.996.tar.gz* 

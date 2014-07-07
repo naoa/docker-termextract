@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl 
 
 #  termextract_mecab.pl
 #
@@ -6,18 +6,7 @@
 #  のデータまたはプレーンテキストを読み取り
 #  標準出力に専門用語とその重要度を返すプログラム
 #
-#   version 0.32
-#
-#   maeda@lib.u-tokyo.ac.jp
-#
-#   modified: Naoya Murakami <naoya@createfield.com>
-#   コマンドラインからオプションを設定できるように修正
-#   入力文字コードがUTF8で受け付けられるように修正
-#   出力文字コードをUTF8に修正
-#   MeCab未解析モードを追加
-#   Mecabが知っている単語は出力させないモードを追加
-#   カンマが含まれているものは出力させないように修正
-#   $output_mode 4:IPADic形式を追加
+#   Naoya Murakami <naoya@createfield.com>
 
 use MeCab;
 use TermExtract::MeCab;
@@ -27,28 +16,35 @@ use Encode;
 #use strict;
 
 $mecab = new MeCab::Tagger ();
-my $db_dir = "/var/lib/termextract/";
+my $base_dir = "/var/lib/termextract/";
 
 my $data = new TermExtract::MeCab;
 
 my %opts = ( input => "", output => 1,
-             no_mecab => 0, no_dic_filter => 0,
+             limit => -1, threshold => -1,
+             is_mecab => 0, no_dic_filter => 0,
              no_stat => 0, no_storage => 0,
              stat_db => "stat.db",
              comb_db => "comb.db",
              average_rate => 1,
+             pre_filter => "pre_filter.txt",
+             post_filter => "post_filter.txt",
              use_total => 0, use_uniq => 0,
              use_Perplexity => 0, no_LR => 0,
              use_TF => 0, use_frq => 0, no_frq => 0,
              use_SDBM => 0);
 
-GetOptions(\%opts, qw( input=s output=i no_mecab no_dic_filter
+GetOptions(\%opts, qw( input=s output=i limit=i threshold=i
+                       is_mecab no_dic_filter
                        stat_db=s comb_db=s average_rate=f
+                       pre_filter=s post_filter=s
                        no_stat no_storage use_total use_uniq use_Perplexity
                        no_LR use_TF use_frq no_frq use_SDBM) ) or exit 1;
 
-$opts{stat_db} = $db_dir . $opts{stat_db};
-$opts{comb_db} = $db_dir . $opts{comb_db};
+$opts{stat_db} = $base_dir . $opts{stat_db};
+$opts{comb_db} = $base_dir . $opts{comb_db};
+$opts{pre_filter} = $base_dir . $opts{pre_filter};
+$opts{post_filter} = $base_dir . $opts{post_filter};
 
 my $InputFile = "";
 my $str = "";
@@ -72,8 +68,32 @@ if ( $InputFile ne '' ) {
   close (IN);
 }
 
-if($opts{no_mecab} == 0){
-  $str = $mecab->parse($str);
+if($opts{is_mecab} == 0){
+  my $PreFilterFile = $opts{pre_filter};
+  my @pre_filter;
+  if ( $PreFilterFile ne '' ) {
+    open (IN, $PreFilterFile) or die "$!";
+    while (<IN>) {
+      chomp($_);
+      $str =~ s/$_/ /g;
+    }
+    close (IN);
+  }
+  $str =~ s/  / /g;
+  my $parsed_str = "";
+  my $split_str = "";
+  if (length($str) < 1000000) {
+    $str = $mecab->parse($str);
+  } else {
+    $s = 0;
+    while($s*1000000 < length($str)){
+      $split_str = substr($str, $s*1000000, $s*1000000 + 1000000);
+      $parsed_str .= $mecab->parse($split_str);
+      $s++;
+    }
+    $str = $parsed_str;
+  }
+
 }
 
 Encode::from_to($str,'utf8','euc-jp');
@@ -196,18 +216,37 @@ my @noun_list = $data->get_imp_word($str, 'var'); # 入力が変数
 #
 #  専門用語リストと計算した重要度を標準出力に出す
 #
+my $PostFilterFile = $opts{post_filter};
+
+my @post_filter;
+if ( $PostFilterFile ne '' ) {
+  open (IN, $PostFilterFile) or die "$!";
+  while (<IN>) {
+    push @post_filter, $_;
+  }
+  close (IN);
+}
+
+$j = 1;
 foreach (@noun_list) {
    # utf8で出力
    Encode::from_to($_->[0], 'euc-jp', 'utf8');
    Encode::from_to($_->[1], 'euc-jp', 'utf8');
 
-   # 日付・時刻は表示しない
-   next if $_->[0] =~ /^(昭和)*(平成)*(\d+年)*(\d+月)*(\d+日)*(午前)*(午後)*(\d+時)*(\d+ 分)*(\d+秒)*$/;
-   # 数値のみは表示しない
-   next if $_->[0] =~ /^\d+$/;
-   # カンマが含まれているものは表示しない
-   next if $_->[0] =~ /,/;
-
+   # 出力させない正規表現パターン
+   $next_flag = 0;
+   foreach my $i(0 .. $#post_filter){
+     if (substr($post_filter[$i], 0, 1) ne '#') {
+       chomp($post_filter[$i]);
+       if ($_->[0] =~ /$post_filter[$i]/) {
+         $next_flag = 1; 
+         last; 
+       }
+     }
+   }
+   if ($next_flag ==1) {
+     next;
+   }
    # MeCab辞書に含まれているものは表示しない (未知語でないものが1個だけだった場合)
    if ($opts{no_dic_filter} == 0) {
       $mecab_miti = new MeCab::Tagger ('-F%f[0]\n -U\0 -E\0');
@@ -221,12 +260,26 @@ foreach (@noun_list) {
       }
    }
 
+   # 閾値以下は表示しない
+   if ($opts{threshold} ne -1) {
+     if ($_->[1] < $opts{threshold}) {
+       next;
+     }
+   }
+
+   # limit以上は表示しない
+   if ($opts{limit} ne -1) {
+     if ($opts{limit} < $j) {
+       next;
+     }
+   }
    # 結果表示
    printf "%-60s %16.2f\n", $_->[0], $_->[1] if $output_mode == 1;
    printf "%s\n",           $_->[0]          if $output_mode == 2;
    printf "%s,",            $_->[0]          if $output_mode == 3;
    printf "%s,0,0,%d,名詞,一般,*,*,*,*,%s,*,*,By TermExtract\n",
            $_->[0],-10000-length($_->[0])*500,$_->[0]  if $output_mode == 4;
+   $j++;
 }
 
 # プロセスの異常終了時にDBのロックを解除

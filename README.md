@@ -58,13 +58,17 @@ UTF8の文字コードのテキストのみ対応しています。
 |:-----------|:------------|:------------|
 | --input または 引数なし | 標準入力または解析対象ファイル名(コンテナ内の)|標準入力|
 | --output | 1:専門用語+重要度、2:専門用語のみ、3:カンマ区切り、4:IPAdic辞書形式|1|
-| --no_mecab | 入力を形態素解析済みの形式とする||
+| --limit | 出力件数|-1(すべて)|
+| --threshold | 閾値|-1(すべて)|
+| --is_mecab | 入力を形態素解析済みの形式とする||
 | --no_dic_filter | MeCabの辞書に登録済みの専門用語を出力する||
 | --stat_db |過去のドキュメントの累積統計を使う場合のデータベースのファイル名(<code>/var/lib/termextract/</code>配下)|"stat_db"|
 | --comb_db |過去のドキュメントの累積統計を使う場合のデータベースのファイル名(<code>/var/lib/termextract/</code>配下)|"comb_db"|
 | --no_stat |重要度計算で学習機能を使わない||
 | --no_storage |学習機能用DBにデータを蓄積しない||
 | --average_rate |重要度計算で、「ドキュメント中の用語の頻度」と「連接語の重要度」のどちらに比重をおくか。値が大きいほど「ドキュメント中の用語の頻度」の比重が高まる|1|
+| --pre_filter |形態素解析の前にプレーンテキストから除去する正規表現パターンがリストされたファイル名(<code>/var/lib/termextract/</code>配下)|"pre_filter.txt"|
+| --post_filter |形態素解析の後に出力しない正規表現パターンがリストされたファイル名(<code>/var/lib/termextract/</code>配下)|"post_filter.txt"|
 | --use_total |重要度計算で連接語の延べ数をとる|ON|
 | --use_uniq |重要度計算で連接語の異なり数をとる||
 | --use_Perplexity |重要度計算で連接語のパープレキシティをとる||
@@ -76,7 +80,7 @@ UTF8の文字コードのテキストのみ対応しています。
 | --lock_dir |データベースの排他ロックのための一時ディレクトリを指定|ロックしない|
 
 * 出力結果  
-<code>--output</code>に指定したモードに沿った解析結果のテキストがUTF8の文字コードで標準出力に出力されます。  
+<code>--output</code>に指定したモードに沿った解析結果のテキストがUTF8の文字コードで標準出力に出力されます。4を指定するとMeCabのIPADic形式に沿った文字列が出力されます。  
 
 ```bash
 % echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 4

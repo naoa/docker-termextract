@@ -48,7 +48,7 @@ EOS
 * ホストの形態素解析済みテキストファイルから専門用語を抽出する場合  
 
 ```bash
-% cat { 形態素解析済みテキストファイル}.txt | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --no_mecab
+% cat { 形態素解析済みテキストファイル}.txt | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --is_mecab
 ```
 
 * 入力形式  

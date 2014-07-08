@@ -85,7 +85,7 @@ UTF8の文字コードのテキストのみ対応しています。
 * 出力結果  
 <code>--output</code>に指定したモードに沿った解析結果のテキストがUTF8の文字コードで標準出力に出力されます。
 
-4を指定するとMeCabで自動コスト推定したMeCabのIPAdic形式に沿った文字列が出力されます。  
+4を指定するとMeCabで自動コスト推定したIPAdic形式の文字列が出力されます。  
 
 ```bash
 % echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 4
@@ -93,12 +93,19 @@ UTF8の文字コードのテキストのみ対応しています。
 印刷用紙,1285,1285,7336,名詞,一般,*,*,*,*,印刷用紙,*,*,ByTermExtractEst
 ```
 
-5を指定すると文字列長に応じてコストが手動で設定されたIPAdic形式に沿った文字列が出力されます。  
+5を指定すると文字列長に応じてコストが手動で設定されたIPAdic形式の文字列が出力されます。  
 
 ```bash
-% echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 4
-複合機,0,0,-14500,名詞,一般,*,*,*,*,複合機,*,*,By TermExtractLen
-印刷用紙,0,0,-16000,名詞,一般,*,*,*,*,印刷用紙,*,*,By TermExtractLen
+% echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 5 
+複合機,0,0,-14500,名詞,一般,*,*,*,*,複合機,*,*,ByTermExtractLen
+印刷用紙,0,0,-16000,名詞,一般,*,*,*,*,印刷用紙,*,*,ByTermExtractLen
+```
+
+<code>--no_term_extract</code>を指定すると形態素解析、専門用語抽出をせずにMeCabで自動コスト推定したIPAdic形式の文字列が出力されます。  
+
+```bash
+echo "印刷用紙" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --no_term_extract
+印刷用紙,1285,1285,7336,名詞,一般,*,*,*,*,印刷用紙,*,*,ByMeCabEst
 ```
 
 * 参考：MeCabのIPAdicでの解析結果
@@ -116,7 +123,7 @@ UTF8の文字コードのテキストのみ対応しています。
 EOS
 ```
 
-# システム辞書への追加例
+* システム辞書への追加例
 
 ```bash
 % docker run -v /var/lib/termextract:/var/lib/termextract -i -t naoa/termextract /bin/bash

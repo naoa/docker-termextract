@@ -138,3 +138,7 @@ EOS
 
 Naoya Murakami naoya@createfield.com
 
+## License
+
+Public domain. You can copy and modify this project freely.
+

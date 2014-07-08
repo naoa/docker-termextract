@@ -26,8 +26,6 @@ RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz
 RUN tar -xzf mecab-ipadic-2.7.0-20070801.tar.gz
 RUN cd mecab-ipadic-2.7.0-20070801; ./configure --with-charset=utf8; make; make install
 RUN echo "dicdir = /usr/local/lib/mecab/dic/ipadic" > /usr/local/etc/mecabrc
-#RUN nkf --overwrite -Ew mecab-ipadic-2.7.0-20070801/*
-#RUN cd mecab-ipadic-2.7.0-20070801; /usr/local/libexec/mecab/mecab-dict-index -t utf-8 -f utf-8
 
 # Ipadic_model
 RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.model.bz2

@@ -39,6 +39,8 @@ EOS
 印刷用紙                                                             3.00
 ```
 
+入力を終了するにはEOSを入力します。  
+
 * ホストのプレーンテキストファイルから専門用語を抽出する場合  
 
 ```bash
@@ -57,11 +59,12 @@ UTF8の文字コードのテキストのみ対応しています。
 | 引数        | 説明       |デフォルト   |
 |:-----------|:------------|:------------|
 | --input または 引数なし | 標準入力または解析対象ファイル名(コンテナ内の)|標準入力|
-| --output | 1:専門用語+重要度、2:専門用語のみ、3:カンマ区切り、4:IPAdic辞書形式|1|
+| --output | 1:専門用語+重要度、2:専門用語のみ、3:カンマ区切り、4:IPAdic辞書形式(コスト推定)、5:IPAdic辞書形式(文字列長)|1|
 | --limit | 出力件数|-1(すべて)|
 | --threshold | 閾値|-1(すべて)|
 | --is_mecab | 入力を形態素解析済みの形式とする||
 | --no_dic_filter | MeCabの辞書に登録済みの専門用語を出力する||
+| --no_term_extract | 形態素解析、専門用語抽出を行わずコスト推定のみ行います||
 | --stat_db |過去のドキュメントの累積統計を使う場合のデータベースのファイル名(<code>/var/lib/termextract/</code>配下)|"stat_db"|
 | --comb_db |過去のドキュメントの累積統計を使う場合のデータベースのファイル名(<code>/var/lib/termextract/</code>配下)|"comb_db"|
 | --no_stat |重要度計算で学習機能を使わない||
@@ -80,15 +83,25 @@ UTF8の文字コードのテキストのみ対応しています。
 | --lock_dir |データベースの排他ロックのための一時ディレクトリを指定|ロックしない|
 
 * 出力結果  
-<code>--output</code>に指定したモードに沿った解析結果のテキストがUTF8の文字コードで標準出力に出力されます。4を指定するとMeCabのIPADic形式に沿った文字列が出力されます。  
+<code>--output</code>に指定したモードに沿った解析結果のテキストがUTF8の文字コードで標準出力に出力されます。
+
+4を指定するとMeCabで自動コスト推定したMeCabのIPAdic形式に沿った文字列が出力されます。  
 
 ```bash
 % echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 4
-複合機,0,0,-14500,名詞,一般,*,*,*,*,複合機,*,*,By TermExtract
-印刷用紙,0,0,-16000,名詞,一般,*,*,*,*,印刷用紙,*,*,By TermExtract
+複合機,1285,1285,7336,名詞,一般,*,*,*,*,複合機,*,*,ByTermExtractEst
+印刷用紙,1285,1285,7336,名詞,一般,*,*,*,*,印刷用紙,*,*,ByTermExtractEst
 ```
 
-* 参考：MeCabでの解析結果
+5を指定すると文字列長に応じてコストが手動で設定されたIPAdic形式に沿った文字列が出力されます。  
+
+```bash
+% echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --output 4
+複合機,0,0,-14500,名詞,一般,*,*,*,*,複合機,*,*,By TermExtractLen
+印刷用紙,0,0,-16000,名詞,一般,*,*,*,*,印刷用紙,*,*,By TermExtractLen
+```
+
+* 参考：MeCabのIPAdicでの解析結果
 ```bash
 % echo "印刷用紙を複合機で印刷する。" | docker run -v /var/lib/termextract:/var/lib/termextract -a stdin -a stdout -a stderr -i naoa/termextract mecab
 印刷    名詞,サ変接続,*,*,*,*,印刷,インサツ,インサツ
@@ -101,6 +114,17 @@ UTF8の文字コードのテキストのみ対応しています。
 する    動詞,自立,*,*,サ変・スル,基本形,する,スル,スル
 。      記号,句点,*,*,*,*,。,。,。
 EOS
+```
+
+# システム辞書への追加例
+
+```bash
+% docker run -v /var/lib/termextract:/var/lib/termextract -i -t naoa/termextract /bin/bash
+% echo "印刷用紙を複合機で印刷する。" | termextract_mecab.pl --output 4 > /mecab-ipadic-2.7.0-20070801/user.csv
+% cd /mecab-ipadic-2.7.0-20070801
+% nkf -e --overwrite user.csv
+% make clean
+% ./configure --with-charset=utf8; make; make install
 ```
 
 ## Author

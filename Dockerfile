@@ -17,18 +17,26 @@ RUN yum install -y perl perl-devel
 #RUN apt-get install -y perl libperl-dev
 
 # Mecab
-RUN wget https://mecab.googlecode.com/files/mecab-0.996.tar.gz
+RUN wget http://mecab.googlecode.com/files/mecab-0.996.tar.gz
 RUN tar -xzf mecab-0.996.tar.gz
 RUN cd mecab-0.996; ./configure --enable-utf8-only; make; make install; ldconfig
 
 # Ipadic
-RUN wget https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz
+RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz
 RUN tar -xzf mecab-ipadic-2.7.0-20070801.tar.gz
 RUN cd mecab-ipadic-2.7.0-20070801; ./configure --with-charset=utf8; make; make install
 RUN echo "dicdir = /usr/local/lib/mecab/dic/ipadic" > /usr/local/etc/mecabrc
+#RUN nkf --overwrite -Ew mecab-ipadic-2.7.0-20070801/*
+#RUN cd mecab-ipadic-2.7.0-20070801; /usr/local/libexec/mecab/mecab-dict-index -t utf-8 -f utf-8
+
+# Ipadic_model
+RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.model.bz2
+RUN bzip2 -d mecab-ipadic-2.7.0-20070801.model.bz2
+RUN nkf --overwrite -Ew mecab-ipadic-2.7.0-20070801.model
+RUN sed -i -e "s/euc-jp/utf-8/g" mecab-ipadic-2.7.0-20070801.model
 
 # Mecab-perl
-RUN wget https://mecab.googlecode.com/files/mecab-perl-0.996.tar.gz
+RUN wget http://mecab.googlecode.com/files/mecab-perl-0.996.tar.gz
 RUN tar -xzf mecab-perl-0.996.tar.gz
 RUN cd mecab-perl-0.996 ;perl Makefile.PL; make ;make install;
 RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/mecab.conf
@@ -50,7 +58,7 @@ ADD post_filter.txt /var/lib/termextract/post_filter.txt
 
 # Clean up
 RUN rm -rf mecab-0.996.tar.gz*
+RUN rm -rf mecab-ipadic-2.7.0-20070801.tar.gz*
 RUN rm -rf mecab-perl-0.996.tar.gz* 
-RUN rm -rf mecab-ipadic-2.7.0-20070801*
 RUN rm -rf TermExtract-4_10.tar.gz*
 

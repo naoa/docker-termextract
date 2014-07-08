@@ -23,6 +23,7 @@ my $data = new TermExtract::MeCab;
 my %opts = ( input => "", output => 1,
              limit => -1, threshold => -1,
              is_mecab => 0, no_dic_filter => 0,
+             no_term_extract => 0,
              no_stat => 0, no_storage => 0,
              stat_db => "stat.db",
              comb_db => "comb.db",
@@ -35,11 +36,12 @@ my %opts = ( input => "", output => 1,
              use_SDBM => 0);
 
 GetOptions(\%opts, qw( input=s output=i limit=i threshold=i
-                       is_mecab no_dic_filter
+                       is_mecab no_dic_filter no_term_extract
                        stat_db=s comb_db=s average_rate=f
                        pre_filter=s post_filter=s
                        no_stat no_storage use_total use_uniq use_Perplexity
                        no_LR use_TF use_frq no_frq use_SDBM) ) or exit 1;
+
 
 $opts{stat_db} = $base_dir . $opts{stat_db};
 $opts{comb_db} = $base_dir . $opts{comb_db};
@@ -48,6 +50,11 @@ $opts{post_filter} = $base_dir . $opts{post_filter};
 
 my $InputFile = "";
 my $str = "";
+
+if($opts{no_term_extract}) {
+  open(OUT, ">foo.csv");
+}
+
 if (defined $ARGV[0]){
   $InputFile = $ARGV[0];
 } elsif ($opts{input} eq ''){
@@ -56,6 +63,10 @@ if (defined $ARGV[0]){
       last;
     }
     $str .= $line;
+    if($opts{no_term_extract}) {
+      chomp($line);
+      printf OUT "%s,,,,名詞,一般,*,*,*,*,%s,*,*,ByMeCabEst\n", $line, $line;
+    }
   }
 } else {
   $InputFile = $opts{input};
@@ -64,8 +75,25 @@ if ( $InputFile ne '' ) {
   open (IN, $InputFile) or die "$!";
   while (<IN>) {
     $str .= $_;
+    if($opts{no_term_extract}) {
+      chomp($_);
+      printf OUT "%s,,,,名詞,一般,*,*,*,*,%s,*,*,ByMeCabEst\n", $_, $_;
+    }
   }
   close (IN);
+}
+
+if($opts{no_term_extract}) {
+  close(OUT);
+  my $return_value = system "/usr/local/libexec/mecab/mecab-dict-index -m mecab-ipadic-2.7.0-20070801.model -d mecab-ipadic-2.7.0-20070801 -u foo.dic -f utf-8 -t utf-8 -a foo.csv > /dev/null";
+  open (IN, "foo.dic") or die "$!";
+  while (<IN>) {
+    printf "%s", $_;
+  }
+  my $return_value = system "rm -f foo.csv foo.dic";
+  close(IN);
+
+  exit(0);
 }
 
 if($opts{is_mecab} == 0){
@@ -227,6 +255,10 @@ if ( $PostFilterFile ne '' ) {
   close (IN);
 }
 
+if ($output_mode == 4) {
+  open(OUT, ">foo.csv");
+}
+
 $j = 1;
 foreach (@noun_list) {
    # utf8で出力
@@ -277,9 +309,22 @@ foreach (@noun_list) {
    printf "%-60s %16.2f\n", $_->[0], $_->[1] if $output_mode == 1;
    printf "%s\n",           $_->[0]          if $output_mode == 2;
    printf "%s,",            $_->[0]          if $output_mode == 3;
-   printf "%s,0,0,%d,名詞,一般,*,*,*,*,%s,*,*,By TermExtract\n",
-           $_->[0],-10000-length($_->[0])*500,$_->[0]  if $output_mode == 4;
+
+   printf OUT "%s,,,,名詞,一般,*,*,*,*,%s,*,*,ByTermExtractEst\n",
+               $_->[0], $_->[0]  if $output_mode == 4;
+   printf "%s,0,0,%d,名詞,一般,*,*,*,*,%s,*,*,ByTermExtractLen\n",
+           $_->[0],-10000-length($_->[0])*500,$_->[0]  if $output_mode == 5;
    $j++;
+}
+if ($output_mode == 4) {
+  close(OUT);
+  my $return_value = system "/usr/local/libexec/mecab/mecab-dict-index -m mecab-ipadic-2.7.0-20070801.model -d mecab-ipadic-2.7.0-20070801 -u foo.dic -f utf-8 -t utf-8 -a foo.csv > /dev/null";
+  open (IN, "foo.dic") or die "$!";
+  while (<IN>) {
+    printf "%s", $_;
+  }
+  close(IN);
+  my $return_value = system "rm -f foo.csv foo.dic"
 }
 
 # プロセスの異常終了時にDBのロックを解除

@@ -57,6 +57,13 @@ EOS
   -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --is_mecab
 ```
 
+* コマンドがめんどくさいが、エイリアスをはれば短縮できる。常用的に使う場合は、~/.bashrcなどの起動スクリプトに書く。
+
+```bash
+% alias termextract="docker run -v /var/lib/termextract:/var/lib/termextract \
+  -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl"
+```
+
 * 入力形式  
 UTF8の文字コードのテキストのみ対応しています。
 
@@ -75,7 +82,7 @@ UTF8の文字コードのテキストのみ対応しています。
 | --no_storage |学習機能用DBにデータを蓄積しない||
 | --average_rate |重要度計算で、「ドキュメント中の用語の頻度」と「連接語の重要度」のどちらに比重をおくか。値が大きいほど「ドキュメント中の用語の頻度」の比重が高まる|1|
 | --pre_filter |形態素解析の前にプレーンテキストから除去する正規表現パターンがリストされたファイル名(<code>/var/lib/termextract/</code>配下)|"pre_filter.txt"|
-| --post_filter |形態素解析の後に出力しない正規表現パターンがリストされたファイル名(<code>/var/lib/termextract/</code>配下)|"post_filter.txt"|
+| --post_filter |複合語抽出の後に出力しない正規表現パターンがリストされたファイル名(<code>/var/lib/termextract/</code>配下)|"post_filter.txt"|
 | --use_total |重要度計算で連接語の延べ数をとる|ON|
 | --use_uniq |重要度計算で連接語の異なり数をとる||
 | --use_Perplexity |重要度計算で連接語のパープレキシティをとる||

@@ -12,10 +12,11 @@ http://gensen.dl.itc.u-tokyo.ac.jp/termextract.html
 
 | 項目        | バージョン | 備考 |
 |:-----------|:------------|:------------|
-| CentOS     | 6.4 | ja_JP.UTF-8|
-| perl | v5.10.1 | yum base |
+| CentOS     | 7 | ja_JP.UTF-8|
+| perl | 5.16.3 | yum base |
 | MeCab     | 0.996 | --enable-utf8-only|
 | MeCab IPAdic | 2.7.0-20070801 |--with-charset=utf8|
+| MeCab IPAdic model | 2.7.0-20070801 ||
 | MeCab perl | 0.996 ||
 | TermExtract | 4_10 ||
 

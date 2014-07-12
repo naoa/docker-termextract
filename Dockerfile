@@ -1,18 +1,22 @@
-FROM centos:6.4
+#FROM centos:centos6
+FROM centos:centos7
 MAINTAINER Naoya Murakami <naoya@createfield.com>
 
+RUN localedef -f UTF-8 -i ja_JP ja_JP.utf8
 ENV LANG ja_JP.UTF-8
 ENV LANGUAGE ja_JP:ja
 ENV LC_ALL ja_JP.UTF-8
-#RUN echo 'LANG="ja_JP.utf8"' >> /etc/sysconfig/i18n
 
-RUN yum install -y wget tar vi nkf
+RUN yum install -y wget tar vi bzip2
 RUN yum install -y gcc make gcc-c++
 RUN yum install -y perl perl-devel
+#RUN yum install -y nkf
+RUN yum localinstall -y http://mirror.centos.org/centos/6/os/x86_64/Packages/nkf-2.0.8b-6.2.el6.x86_64.rpm
 
 # for debian
 #RUN apt-get update
-#RUN apt-get install -y wget tar vim nkf
+#RUN apt-get install locales
+#RUN apt-get install -y wget tar vim nkf bzip2
 #RUN apt-get install -y gcc make g++
 #RUN apt-get install -y perl libperl-dev
 
@@ -30,6 +34,7 @@ RUN echo "dicdir = /usr/local/lib/mecab/dic/ipadic" > /usr/local/etc/mecabrc
 # Ipadic_model
 RUN wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.model.bz2
 RUN bzip2 -d mecab-ipadic-2.7.0-20070801.model.bz2
+#RUN iconv -f EUCJP -t UTF-8 mecab-ipadic-2.7.0-20070801.model -o mecab-ipadic-2.7.0-20070801.model
 RUN nkf --overwrite -Ew mecab-ipadic-2.7.0-20070801.model
 RUN sed -i -e "s/euc-jp/utf-8/g" mecab-ipadic-2.7.0-20070801.model
 

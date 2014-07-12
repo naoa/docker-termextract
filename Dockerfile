@@ -48,6 +48,7 @@ RUN ldconfig
 # TermExtract
 RUN wget http://gensen.dl.itc.u-tokyo.ac.jp/soft/TermExtract-4_10.tar.gz
 RUN tar -xzf TermExtract-4_10.tar.gz
+RUN nkf --overwrite -Ew /TermExtract-4_10/TermExtract/MeCab.pm
 RUN cd TermExtract-4_10 ;perl Makefile.PL; make ;make install;
 
 # Add perl script

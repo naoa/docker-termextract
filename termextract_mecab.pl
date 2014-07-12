@@ -11,7 +11,6 @@
 use MeCab;
 use TermExtract::MeCab;
 use Getopt::Long;
-use Encode;
 
 #use strict;
 
@@ -85,12 +84,12 @@ if ( $InputFile ne '' ) {
 
 if($opts{no_term_extract}) {
   close(OUT);
-  my $return_value = system "/usr/local/libexec/mecab/mecab-dict-index -m mecab-ipadic-2.7.0-20070801.model -d mecab-ipadic-2.7.0-20070801 -u foo.dic -f utf-8 -t utf-8 -a foo.csv > /dev/null";
+  $return_value = system "/usr/local/libexec/mecab/mecab-dict-index -m mecab-ipadic-2.7.0-20070801.model -d mecab-ipadic-2.7.0-20070801 -u foo.dic -f utf-8 -t utf-8 -a foo.csv > /dev/null";
   open (IN, "foo.dic") or die "$!";
   while (<IN>) {
     printf "%s", $_;
   }
-  my $return_value = system "rm -f foo.csv foo.dic";
+  $return_value = system "rm -f foo.csv foo.dic";
   close(IN);
 
   exit(0);
@@ -123,8 +122,6 @@ if($opts{is_mecab} == 0){
   }
 
 }
-
-Encode::from_to($str,'utf8','euc-jp');
 
 # プロセスの異常終了時処理
 # (ロックディレクトリを使用した場合のみ）
@@ -261,10 +258,6 @@ if ($output_mode == 4) {
 
 $j = 1;
 foreach (@noun_list) {
-   # utf8で出力
-   Encode::from_to($_->[0], 'euc-jp', 'utf8');
-   Encode::from_to($_->[1], 'euc-jp', 'utf8');
-
    # 出力させない正規表現パターン
    $next_flag = 0;
    foreach my $i(0 .. $#post_filter){
@@ -318,13 +311,13 @@ foreach (@noun_list) {
 }
 if ($output_mode == 4) {
   close(OUT);
-  my $return_value = system "/usr/local/libexec/mecab/mecab-dict-index -m mecab-ipadic-2.7.0-20070801.model -d mecab-ipadic-2.7.0-20070801 -u foo.dic -f utf-8 -t utf-8 -a foo.csv > /dev/null";
+  $return_value = system "/usr/local/libexec/mecab/mecab-dict-index -m mecab-ipadic-2.7.0-20070801.model -d mecab-ipadic-2.7.0-20070801 -u foo.dic -f utf-8 -t utf-8 -a foo.csv > /dev/null";
   open (IN, "foo.dic") or die "$!";
   while (<IN>) {
     printf "%s", $_;
   }
   close(IN);
-  my $return_value = system "rm -f foo.csv foo.dic"
+  $return_value = system "rm -f foo.csv foo.dic"
 }
 
 # プロセスの異常終了時にDBのロックを解除

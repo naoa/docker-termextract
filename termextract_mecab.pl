@@ -106,7 +106,7 @@ if($opts{is_mecab} == 0){
     }
     close (IN);
   }
-  $str =~ s/  / /g;
+  $str =~ s/( )+/ /g;
   my $parsed_str = "";
   my $split_str = "";
   if (length($str) < 1000000) {

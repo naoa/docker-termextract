@@ -58,7 +58,7 @@ EOS
   -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --is_mecab
 ```
 
-* コマンドがめんどくさいが、エイリアスをはれば短縮できる。常用的に使う場合は、~/.bashrcなどの起動スクリプトに書く。
+* コマンドがめんどくさいが、エイリアスをはれば短縮できます。常用的に使う場合は、~/.bashrcなどの起動スクリプトに書けばよいです。
 
 ```bash
 % alias termextract="docker run -v /var/lib/termextract:/var/lib/termextract \

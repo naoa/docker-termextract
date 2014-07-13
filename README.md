@@ -20,7 +20,7 @@ http://gensen.dl.itc.u-tokyo.ac.jp/termextract.html
 | MeCab perl | 0.996 ||
 | TermExtract | 4_10 ||
 
-# イメージ構築
+## イメージ構築
 
 ```bash
 % git clone git@github.com:naoa/docker-termextract.git
@@ -29,7 +29,7 @@ http://gensen.dl.itc.u-tokyo.ac.jp/termextract.html
 % docker build -t naoa/termextract .
 ```
 
-# 使い方
+## 使い方
 * コンテナにターミナル接続する場合  
 ```bash
 % docker run -v /var/lib/termextract:/var/lib/termextract -i -t naoa/termextract /bin/bash

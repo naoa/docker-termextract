@@ -1,0 +1,13 @@
+version: '2'
+services:
+  data:
+    image: busybox:latest
+    volumes:
+      - ".:/app"
+  termextract:
+    container_name: termextract
+    build: .
+    volumes:
+      - ./data:/var/lib/termextract
+    stdin_open: true
+    tty: true

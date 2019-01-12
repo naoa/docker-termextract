@@ -25,15 +25,15 @@ http://gensen.dl.itc.u-tokyo.ac.jp/termextract.html
 ```bash
 % git clone git@github.com:naoa/docker-termextract.git
 % cd docker-termextract
-% mkdir /var/lib/termextract
-% docker build -t naoa/termextract .
+% docker-compose build
+% docker-compose up -d
 ```
 
 ## 使い方
 * コンテナにターミナル接続する場合  
 ```bash
-% docker run -v /var/lib/termextract:/var/lib/termextract -i -t naoa/termextract /bin/bash
-bash-4.1# termextract_mecab.pl
+% docker-compose exec termextract bash
+bash-4.1#termextract_mecab.pl
 印刷用紙を複合機で印刷する。
 EOS
 複合機                                                                8.21
@@ -42,27 +42,10 @@ EOS
 
 入力を終了するにはEOSを入力します。  
 
-* ホストのプレーンテキストファイルから専門用語を抽出する場合  
+* 形態素解析済みテキストファイルから専門用語を抽出する場合  
 
 ```bash
-% cat {プレーンテキストファイル}.txt | \
-  docker run -v /var/lib/termextract:/var/lib/termextract \
-  -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl
-```
-
-* ホストの形態素解析済みテキストファイルから専門用語を抽出する場合  
-
-```bash
-% cat { 形態素解析済みテキストファイル}.txt | \
-  docker run -v /var/lib/termextract:/var/lib/termextract \
-  -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl --is_mecab
-```
-
-* コマンドがめんどくさいが、エイリアスをはれば短縮できます。常用的に使う場合は、~/.bashrcなどの起動スクリプトに書けばよいです。
-
-```bash
-% alias termextract="docker run -v /var/lib/termextract:/var/lib/termextract \
-  -a stdin -a stdout -a stderr -i naoa/termextract termextract_mecab.pl"
+% cat { 形態素解析済みテキストファイル}.txt || termextract_mecab.pl --is_mecab
 ```
 
 * 入力形式  
